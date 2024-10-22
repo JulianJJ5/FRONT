@@ -1,188 +1,166 @@
 <template>
   <div class="">
-  <router-view>
-    <q-layout view="lHh Lpr lff">
-      <q-page-container>
-        <q-btn class="colorCorporativo" @click="abrirDialogo()" label="Crear Aprendiz" />
-        <br><br>
-        <q-table
-          title="APRENDICES"
-          :rows="rows"
-          :columns="columns"
-          row-key="name"
-          :loading="isLoading"
-          class="tabla q-table--flat q-table--bordered"
-          pagination.sync="pagination"
-          :rows-per-page-options="[20, 50, 100, 0]"
-        >
-          <template v-slot:body-cell-opciones="props">
-            <q-td :props="props">
-              <q-btn
-                class="colorCorporativo editar"
-                @click="abrirDialogo(props.row)"
-                :loading="loadingButtons[props.row._id]?.editar || false"
-              >
-                <font-awesome-icon icon="pen-to-square" />
-              </q-btn>
-              <q-btn
-                @click="activar(props.row._id)"
-                :loading="loadingButtons[props.row._id]?.activar || false"
-                class="activar"
-                v-if="props.row.estado === 0"
-              >
-                <font-awesome-icon
-                  icon="fa-solid fa-check"
-                  style="color: #ffffff"
+    <router-view>
+      <q-layout view="lHh Lpr lff">
+        <q-page-container>
+          <q-btn
+            class="colorCorporativo"
+            @click="abrirDialogo()"
+            label="Crear Aprendiz"
+          />
+          <br /><br />
+          <q-table
+            title="APRENDICES"
+            :rows="rows"
+            :columns="columns"
+            row-key="name"
+            :loading="isLoading"
+            class="tabla q-table--flat q-table--bordered"
+            pagination.sync="pagination"
+            :rows-per-page-options="[20, 50, 100, 0]"
+          >
+            <template v-slot:body-cell-opciones="props">
+              <q-td :props="props">
+                <q-btn
+                  class="colorCorporativo editar"
+                  @click="abrirDialogo(props.row)"
+                  :loading="loadingButtons[props.row._id]?.editar || false"
+                >
+                  <font-awesome-icon icon="pen-to-square" />
+                </q-btn>
+                <q-btn
+                  @click="activar(props.row._id)"
+                  :loading="loadingButtons[props.row._id]?.activar || false"
+                  class="activar"
+                  v-if="props.row.estado === 0"
+                >
+                  <font-awesome-icon
+                    icon="fa-solid fa-check"
+                    style="color: #ffffff"
+                  />
+                </q-btn>
+                <q-btn
+                  @click="desactivar(props.row._id)"
+                  :loading="loadingButtons[props.row._id]?.desactivar || false"
+                  class="desactivar"
+                  v-else
+                >
+                  <font-awesome-icon icon="ban" style="color: #ffffff" />
+                </q-btn>
+              </q-td>
+            </template>
+            <template v-slot:body-cell-estado1="props">
+              <q-td :props="props">
+                <p style="color: green" v-if="props.row.estado == 1">Activo</p>
+                <p style="color: red" v-else>Inactivo</p>
+              </q-td>
+            </template>
+          </q-table>
+
+          <!-- Dialog for creating/editing Aprendiz -->
+          <q-dialog v-model="prompt" persistent class="box">
+            <q-card style="min-width: 350px">
+              <q-card-section>
+                <div class="text-h5 tituloCuadroDeDialogo">
+                  {{ editando ? "EDITAR APRENDIZ" : "CREAR APRENDIZ" }}
+                </div>
+              </q-card-section>
+
+              <q-card-section class="q-pt-none">
+                <q-input
+                  filled
+                  label="Nombre del Aprendiz"
+                  label-class="custom-label"
+                  v-model="inputNombreAprendiz"
+                  :disable="isLoading"
+                  :rules="[(val) => !!val || 'Este campo es obligatorio']"
+                  @keyup.enter="guardar()"
                 />
-              </q-btn>
-              <q-btn
-                @click="desactivar(props.row._id)"
-                :loading="loadingButtons[props.row._id]?.desactivar || false"
-                class="desactivar"
-                v-else
-              >
-                <font-awesome-icon icon="ban" style="color: #ffffff" />
-              </q-btn>
-            </q-td>
-          </template>
-          <template v-slot:body-cell-estado1="props">
-            <q-td :props="props">
-              <p style="color: green" v-if="props.row.estado == 1">Activo</p>
-              <p style="color: red" v-else>Inactivo</p>
-            </q-td>
-          </template>
-        </q-table>
 
+                <q-input
+                  filled
+                  label="Documento del Aprendiz"
+                  label-class="custom-label"
+                  v-model="inputDocumentoAprendiz"
+                  :disable="isLoading"
+                  :rules="[(val) => !!val || 'Este campo es obligatorio']"
+                  @keyup.enter="guardar()"
+                />
 
-        <!-- Dialog for creating/editing Aprendiz -->
-        <q-dialog v-model="prompt" persistent class="box">
-          <q-card style="min-width: 350px">
-            <q-card-section>
-              <div class="text-h5 tituloCuadroDeDialogo">
-                {{ editando ? "EDITAR APRENDIZ" : "CREAR APRENDIZ" }}
-              </div>
-            </q-card-section>
+                <q-input
+                  filled
+                  label="Teléfono del Aprendiz"
+                  label-class="custom-label"
+                  v-model="inputTelefonoAprendiz"
+                  :disable="isLoading"
+                  :rules="[(val) => !!val || 'Este campo es obligatorio']"
+                  @keyup.enter="guardar()"
+                />
 
-            <q-card-section class="q-pt-none">
+                <q-input
+                  filled
+                  label="Email del Aprendiz"
+                  label-class="custom-label"
+                  v-model="inputEmailAprendiz"
+                  :disable="isLoading"
+                  :rules="[(val) => !!val || 'Este campo es obligatorio']"
+                  @keyup.enter="guardar()"
+                />
 
-              <q-input
-                filled
-                label="Nombre del Aprendiz"
-                required
-                label-class="custom-label"
-                v-model="inputNombreAprendiz"
-                :disable="isLoading"
-                autofocus
-                @keyup.enter="guardar()"
-                :rules="[val => !!val || 'Este campo es obligatorio']"
-              >
-                <template v-slot:prepend>
-                  <font-awesome-icon icon="spell-check" />
-                </template>              
-              </q-input>
+                <q-file
+                  filled
+                  label="Firma del Aprendiz"
+                  v-model="firma"
+                  name="firma"
+                  :rules="[(val) => !!val || 'Este campo es obligatorio']"
+                  :disable="isLoading"
+                />
 
-              <q-input
-                filled
-                label="Documento del Aprendiz"
-                label-class="custom-label"
-                required
-                v-model="inputDocumentoAprendiz"
-                :disable="isLoading"
-                @keyup.enter="guardar()"
-                :rules="[val => !!val || 'Este campo es obligatorio']"
-
+                <q-select
+                  filled
+                  v-model="selectedFicha"
+                  :options="fichas"
+                  option-label="codigo"
+                  option-value="_id"
+                  label="Seleccionar Ficha"
+                  :rules="[(val) => !!val || 'Este campo es obligatorio']"
+                  :disable="isLoading"
                 >
-                <template v-slot:prepend>
-                  <font-awesome-icon icon="address-card" />                
-                </template>              
-              </q-input>
+                  <template v-slot:prepend>
+                    <font-awesome-icon icon="users-line" />
+                  </template>
+                </q-select>
+              </q-card-section>
 
-              <q-input
-                filled
-                label="Teléfono del Aprendiz"
-                label-class="custom-label"
-                v-model="inputTelefonoAprendiz"
-                required
-                :disable="isLoading"
-                @keyup.enter="guardar()"
-                :rules="[val => !!val || 'Este campo es obligatorio']"
-                >
-                <template v-slot:prepend>
-                  <font-awesome-icon icon="phone" />                
-                </template>              
-              </q-input>
-
-              <q-input
-                filled
-                label="Email del Aprendiz"
-                label-class="custom-label"
-                v-model="inputEmailAprendiz"
-                required
-                :disable="isLoading"
-                :rules="[val => !!val || 'Este campo es obligatorio']"
-                @keyup.enter="guardar()"
-                >
-                <template v-slot:prepend>
-                  <font-awesome-icon icon="envelope" />                
-                </template>              
-              </q-input>
-
-              <q-file
-                filled
-                label="Firma del Aprendiz"
-                :rules="[val => !!val || 'Este campo es obligatorio']"
-                v-model="firma"
-                name="firma"
-                required 
-                :disable="isLoading"
-                @keyup.enter="guardar()"
-                >
-                <template v-slot:prepend>
-                  <font-awesome-icon icon="file-signature"/>                
-                </template>              
-              </q-file>
-              
-              <q-select
-                filled
-                v-model="selectedFicha"
-                :rules="[val => !!val || 'Este campo es obligatorio']"
-                :options="fichas"
-                :disable="isLoading"
-                option-label="codigo"
-                option-value="_id"
-                label="Seleccionar Ficha"
-                label-class="custom-label"
-                >
-                <template v-slot:prepend>
-                  <font-awesome-icon icon="users-line" />                
-                </template>              
-              </q-select>
-            </q-card-section>
-
-            <q-card-actions align="right" class="text-primary1">
-              <q-btn
-              class="btnCerrar"
-                flat
-                v-close-popup 
-                >
-                <font-awesome-icon icon="fa-solid fa-circle-xmark" style="margin-right: 5px;"/>                  
-                Cerrar              
+              <q-card-actions align="right" class="text-primary1">
+                <q-btn class="btnCerrar" flat v-close-popup>
+                  <font-awesome-icon
+                    icon="fa-solid fa-circle-xmark"
+                    style="margin-right: 5px"
+                  />
+                  Cerrar
                 </q-btn>
 
-              <q-btn
-                class="btnGuardar"
-                flat
-                :loading="isLoading"
-                @click="guardar()"
+                <q-btn
+                  class="btnGuardar"
+                  flat
+                  :loading="isLoading"
+                  @click="guardar()"
+                  :disable="!isFormValid"
                 >
-                <font-awesome-icon icon="fa-solid fa-floppy-disk" style="margin-right: 5px;" />                
-                Guardar Aprendiz
-              </q-btn>
-            </q-card-actions>
-          </q-card>
-        </q-dialog>
-      </q-page-container> </q-layout
-  ></router-view></div>
+                  <font-awesome-icon
+                    icon="fa-solid fa-floppy-disk"
+                    style="margin-right: 5px"
+                  />
+                  Guardar Aprendiz
+                </q-btn>
+              </q-card-actions>
+            </q-card>
+          </q-dialog>
+        </q-page-container>
+      </q-layout></router-view
+    >
+  </div>
 </template>
 
 <script setup>
@@ -221,10 +199,10 @@ const columns = ref([
     sortable: true,
   },
   {
-    name: 'nombreFicha',
-    label: 'Ficha',
-    align: 'center',
-    field: 'nombreFicha',
+    name: "nombreFicha",
+    label: "Ficha",
+    align: "center",
+    field: "nombreFicha",
     sortable: true,
   },
   // {
@@ -301,7 +279,7 @@ function abrirDialogo(row = null) {
     inputDocumentoAprendiz.value = "";
     inputTelefonoAprendiz.value = "";
     inputEmailAprendiz.value = "";
-    firma.value = null
+    firma.value = null;
     selectedFicha.value = null;
   }
   prompt.value = true;
@@ -320,11 +298,10 @@ async function traerFichas() {
 
       return {
         ...aprendiz,
-        nombreFicha: ficha?.nombre || 'Sin Ficha',
-        codigoFicha: ficha?.codigo || 'Sin Código',
+        nombreFicha: ficha?.nombre || "Sin Ficha",
+        codigoFicha: ficha?.codigo || "Sin Código",
       };
     });
-
   } catch (error) {
     $q.notify({
       type: "negative",
@@ -334,7 +311,7 @@ async function traerFichas() {
   } finally {
     isLoading.value = false;
   }
-};
+}
 
 async function guardar() {
   isLoading.value = true;
@@ -346,7 +323,7 @@ async function guardar() {
     !inputDocumentoAprendiz.value ||
     !inputTelefonoAprendiz.value ||
     !inputEmailAprendiz.value ||
-    !firma.value 
+    !firma.value
   ) {
     $q.notify({
       type: "negative",
@@ -365,19 +342,22 @@ async function guardar() {
   formData.append("firma", firma.value);
 
   try {
-    console.log('documento:', inputDocumentoAprendiz.value);
-    console.log('nombre:', inputNombreAprendiz.value);
-    console.log('teléfono:', inputTelefonoAprendiz.value);
-    console.log('email:', inputEmailAprendiz.value);
-    console.log('ficha ID:', fichaId);
+    console.log("documento:", inputDocumentoAprendiz.value);
+    console.log("nombre:", inputNombreAprendiz.value);
+    console.log("teléfono:", inputTelefonoAprendiz.value);
+    console.log("email:", inputEmailAprendiz.value);
+    console.log("ficha ID:", fichaId);
     if (editando.value) {
-      const respuesta = await useAprendiz.actualizarAprendiz(aprendizId.value, formData);
+      const respuesta = await useAprendiz.actualizarAprendiz(
+        aprendizId.value,
+        formData
+      );
       if (respuesta.success) {
         $q.notify({
           type: "positive",
           message: "Aprendiz actualizado correctamente.",
         });
-        await traer()
+        await traer();
       } else {
         $q.notify({
           type: "negative",
@@ -385,7 +365,7 @@ async function guardar() {
         });
       }
     } else {
-      console.log('Firma:', firma.value);
+      console.log("Firma:", firma.value);
       const respuesta = await useAprendiz.crearAprendiz(formData);
       if (respuesta.success) {
         $q.notify({
@@ -394,7 +374,7 @@ async function guardar() {
         });
         await traer(); // Actualiza la lista después de crear
         prompt.value = false; // Cierra el diálogo
-      };
+      }
     }
     prompt.value = false; // Cierra el diálogo al final
   } catch (error) {
@@ -407,8 +387,6 @@ async function guardar() {
     isLoading.value = false; // Detiene la carga
   }
 }
-
-
 
 async function activar(id) {
   loadingButtons.value[id] = { ...loadingButtons.value[id], activar: true };
@@ -470,9 +448,8 @@ async function desactivar(id) {
 .box {
   z-index: 9999;
 }
-.q-card__section{
+.q-card__section {
   padding: 0px !important;
-
 }
 
 /* Media queries para hacer el diseño responsivo */
@@ -542,5 +519,4 @@ async function desactivar(id) {
     padding: 8px 16px;
   }
 }
-
 </style>

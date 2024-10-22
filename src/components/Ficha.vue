@@ -70,7 +70,7 @@
               @keydown="preventNonNumeric"
               @input="formatInputCodigoFicha"
               @keyup.enter="prompt = false"
-              :rules="[val => !!val || 'Este campo es obligatorio']"
+              :rules="[(val) => !!val || 'Este campo es obligatorio']"
             >
               <template v-slot:prepend>
                 <font-awesome-icon icon="hashtag" />
@@ -84,7 +84,7 @@
               :disable="loadingGeneral"
               v-model="inputNombreFicha"
               autofocus
-              :rules="[val => !!val || 'Este campo es obligatorio']"
+              :rules="[(val) => !!val || 'Este campo es obligatorio']"
               @keyup.enter="prompt = false"
             >
               <template v-slot:prepend>
@@ -107,6 +107,7 @@
               class="btnGuardar"
               :loading="loadingGeneral"
               @click="validar()"
+              :disable="loadingGeneral || !puedeGuardar()"
             >
               <font-awesome-icon
                 icon="fa-solid fa-floppy-disk"
@@ -145,6 +146,10 @@ let useFicha = useFichaStore();
 onBeforeMount(() => {
   traer();
 });
+
+const puedeGuardar = () => {
+  return inputCodigoFicha.value.trim() && inputNombreFicha.value.trim();
+};
 
 const traer = async () => {
   loadingGeneral.value = true;
@@ -201,7 +206,7 @@ async function desactivar(id) {
 
 const validar = async () => {
   loadingGeneral.value = true;
-  
+
   // Validar si los campos están vacíos o contienen solo espacios en blanco
   if (!inputCodigoFicha.value.trim() || !inputNombreFicha.value.trim()) {
     q$.notify({

@@ -9,7 +9,6 @@
           label="Crear Bitacora"
           class="crear colorCorporativo"
         />
-
       </div>
       <br />
       <q-dialog v-model="prompt" persistent :style="{ zIndex: 1000 }">
@@ -26,13 +25,11 @@
             use-input
             option-label="documento"
             option-value="_id"
-            :rules="[val => !!val || 'Este campo es obligatorio']"
+            :rules="[(val) => !!val || 'Este campo es obligatorio']"
             label="Seleccionar Aprendiz"
             autofocus
             :disable="loading"
-            
           >
-          
             <template v-slot:prepend>
               <font-awesome-icon icon="user-graduate" />
             </template>
@@ -42,7 +39,7 @@
             filled
             v-model="fecha"
             label="Seleccionar fecha"
-            :rules="[val => !!val || 'Este campo es obligatorio']"
+            :rules="[(val) => !!val || 'Este campo es obligatorio']"
             type="date"
             :disable="loading"
           >
@@ -64,7 +61,7 @@
               class="btnGuardar"
               @click="validar"
               :loading="loading"
-              :disable="loading"
+              :disable="loading || !puedeGuardar()"
             >
               <font-awesome-icon
                 icon="fa-solid fa-floppy-disk"
@@ -114,7 +111,7 @@ import { ref, onBeforeMount } from "vue";
 import { useQuasar } from "quasar";
 import { useBitacoraStore } from "../stores/bitacora.js";
 import { useAprendizStore } from "../stores/aprendiz.js";
-import { useFichaStore } from "../stores/Ficha.js"
+import { useFichaStore } from "../stores/Ficha.js";
 
 onBeforeMount(() => {
   traer();
@@ -155,7 +152,7 @@ const useAprendiz = useAprendizStore();
 const useFicha = useFichaStore();
 const rows = ref([]);
 const columns = ref([
-{
+  {
     name: "nombre",
     required: true,
     label: "Nombre del Aprendiz",
@@ -172,17 +169,17 @@ const columns = ref([
     sortable: true,
   },
   {
-    name: 'nombreFicha',
-    label: 'Ficha',
-    align: 'center',
-    field: 'nombreFicha',
+    name: "nombreFicha",
+    label: "Ficha",
+    align: "center",
+    field: "nombreFicha",
     sortable: true,
   },
   {
-    name: 'codigoFicha',
-    label: 'Código de Ficha',
-    align: 'center',
-    field: 'codigoFicha',
+    name: "codigoFicha",
+    label: "Código de Ficha",
+    align: "center",
+    field: "codigoFicha",
     sortable: true,
   },
   {
@@ -199,6 +196,10 @@ const columns = ref([
     sortable: true,
   },
 ]);
+
+const puedeGuardar = () => {
+  return selectedAprendiz.value && fecha.value;
+};
 
 async function traer() {
   loading.value = true;
@@ -229,7 +230,6 @@ async function traer() {
   }
 }
 
-
 function obtenerFechaActual() {
   const fecha = new Date();
 
@@ -252,7 +252,7 @@ async function cargarAprendices() {
   loading.value = true;
   try {
     const response = await useAprendiz.listarAprendiz();
-    
+
     aprendices.value = response.data.map((aprendiz) => ({
       _id: aprendiz._id,
       documento: `${aprendiz.documento} - ${aprendiz.nombre}`,
@@ -284,9 +284,9 @@ function formatFecha(fecha) {
   const date = new Date(fecha);
   const offset = date.getTimezoneOffset();
   date.setMinutes(date.getMinutes() + offset);
-  
+
   const options = { year: "numeric", month: "2-digit", day: "2-digit" };
-  return date.toLocaleDateString("es-ES", options);
+  return date.toLocaleDateString("es-ES", options);
 }
 
 const dialogo = (accion, bitacora = null) => {

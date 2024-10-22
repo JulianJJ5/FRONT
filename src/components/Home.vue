@@ -5,11 +5,7 @@
         <q-toolbar>
           <q-btn flat @click="drawer = !drawer" round dense icon="menu" />
           <q-toolbar-title>REPFORA</q-toolbar-title>
-          <img
-            src="../assets/Images/Logo-Back-Home.png"
-            @click="goToRoute('/Home')"
-            class="width"
-          />
+          
         </q-toolbar>
       </q-header>
 
