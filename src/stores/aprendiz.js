@@ -8,8 +8,8 @@ export const useAprendizStore = defineStore("aprendiz", () => {
   const q = useQuasar();
   
   const axiosInstance = axios.create({
-    baseURL: 'https://api-asistencia-sena.onrender.com/api',
-    // baseURL: 'http://localhost:5001/api'
+    // baseURL: 'https://api-asistencia-sena.onrender.com/api',
+    baseURL: 'http://localhost:5001/api'
   });
 
   // Interceptor para agregar el token en cada solicitud
@@ -49,6 +49,8 @@ export const useAprendizStore = defineStore("aprendiz", () => {
   };
 
   const crearAprendiz = async (formData) => {
+    console.log('Nuevo FormData de crear aprendiz:   ', formData);
+    
     try {
       const r = await axiosInstance.post(`/Aprendices/crearaprendiz`, formData, {
         headers: {
@@ -72,16 +74,10 @@ export const useAprendizStore = defineStore("aprendiz", () => {
     }
   };
   
-  const actualizarAprendiz = async (formData) => {
-    formData = new FormData();
-    formData.append("documento", documento);
-    formData.append("nombre", nombre);
-    formData.append("telefono", telefono);
-    formData.append("email", email);
-    formData.append("id_ficha", id_ficha);
-    if (firma) {
-      formData.append("firma", firma);
-    }  
+  const actualizarAprendiz = async (id, formData) => {
+    
+    console.log('Nuevo FormData de editar aprendiz:   ', formData);
+
     try {
       const r = await axiosInstance.put(`/Aprendices/actualizaraprendiz/${id}`, formData, {
         headers: {

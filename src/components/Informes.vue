@@ -94,6 +94,13 @@ const fichas = ref([]);
 const filteredFichas = ref([]); // Fichas filtradas dinámicamente
 const rows = ref([]); // Bitácoras obtenidas
 const columns = [
+{
+    name: 'hora',
+    label: 'Hora',
+    align: 'center',
+    field: row => formatearHora(row.createdAt),
+    sortable: true,
+  },
   {
     name: 'nombreAprendiz',
     label: 'Nombre del Aprendiz',
@@ -183,16 +190,23 @@ const buscarBitacoras = async () => {
     }
 
     // Obtener bitácoras por fecha
-    const responseFecha = await useBitacora.listarPorFecha(fechaBuscada.value);
-    if (!responseFecha.data || !responseFecha.data.bitacoras.length) {
+    const responseByFecha = await useBitacora.listarPorFecha(fechaBuscada.value);
+    if (!responseByFecha.data || !responseByFecha.data.bitacoras.length) {
       $q.notify({
         type: "warning",
         message: "No se encontraron bitácoras para la fecha ingresada.",
       });
+      console.log('errorees:', responseByFecha);
+      
       return;
     }
 
-    const bitacorasEncontradas = responseFecha.data.bitacoras.map((b) => b._id);
+    const bitacorasEncontradas = responseByFecha.data.bitacoras.map((bitacora) => ({
+      idBitacora: bitacora._id,
+      fecha: bitacora.fecha,
+    }));
+    console.log('bitacoras Encontradas: ', bitacorasEncontradas);
+    
 
     // Obtener bitácoras por ficha
     if (!fichaBuscada.value) {
@@ -205,7 +219,6 @@ const buscarBitacoras = async () => {
 
     // Obtener el objeto de la ficha seleccionada
     const fichaSeleccionada = fichas.value.find(ficha => ficha.value === fichaBuscada.value);
-    console.log('djfisdjdsnidsnicdnicnsdicnsdincdisninv', fichas);
     
     const codigoFichaSeleccionada = fichaSeleccionada ? fichaSeleccionada.label : 'Sin Ficha';
     const nombreFichaSeleccionada = fichaSeleccionada ? fichaSeleccionada.nombre : 'Sin Ficha';
@@ -221,9 +234,9 @@ const buscarBitacoras = async () => {
 
     // Filtrar las bitácoras por fecha y ficha y añadir el código de ficha a cada una
     const bitacorasFiltradas = responseFicha.data.bitacoras.filter((bitacora) =>
-      bitacorasEncontradas.includes(bitacora._id)
-    ).map((bitacora) => ({
-      ...bitacora,
+      bitacorasEncontradas.some(b => b.idBitacora === bitacora._id)
+    ).map((bitacoraFiltr) => ({
+      ...bitacoraFiltr,
       codigoFicha: codigoFichaSeleccionada,
       nombreFicha: nombreFichaSeleccionada
     }));
@@ -240,7 +253,6 @@ const buscarBitacoras = async () => {
     }
 
     
-
   } catch (error) {
     console.error("Detalles del error:", error.response);
     $q.notify({
@@ -251,6 +263,16 @@ const buscarBitacoras = async () => {
     loading.value = false;
   }
 };
+
+function formatearHora(fechaISO) {
+  const fecha = new Date(fechaISO);
+  return fecha.toLocaleTimeString('es-ES', {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true
+  });
+}
+
 
 
 </script>

@@ -4,11 +4,12 @@
       <table class="responsive-table">
         <thead>
           <tr>
-            <th colspan="12">REGISTRO DE ASISTENCIA Y APROBACIÓN DEL ACTA No- {{ actaNumber }} DEL DÍA {{ day }} DEL MES DE {{ nameMonth }} DEL AÑO {{ year }}</th>
+            <th colspan="11">REGISTRO DE ASISTENCIA Y APROBACIÓN DEL ACTA No- {{ actaNumber }} DEL DÍA {{ day }} DEL MES DE {{ nameMonth }} DEL AÑO {{ year }}</th>
           </tr>
           <tr>
             <th colspan="2">OBJETIVO (S)</th>
-            <th colspan="10"></th>
+
+            <th colspan="9"></th>
           </tr>
           <tr>
             <th>No.</th>
@@ -22,7 +23,6 @@
             <th>Teléfono/Ext. SENA</th>
             <th>Autoriza Grabación</th>
             <th>Firma o Participación Virtual</th>
-            <th>Hora de Registro</th> <!-- Nueva columna -->
           </tr>
         </thead>
         <tbody>
@@ -37,11 +37,7 @@
             <td>{{ row.correo }}</td>
             <td>{{ row.telefono }}</td>
             <td>{{ row.autorizaGrabacion }}</td>
-            <td id="imagenFirma">
-              <!-- Mostrar imagen si hay firma, de lo contrario, dejar celda en blanco -->
-              <img v-if="row.firma" :src="row.firma" alt="Firma" class="firma-imagen" />
-            </td>
-            <td>{{ row.hora }}</td> <!-- Mostrar hora en la nueva columna -->
+            <td id="imagenFirma"><img :src="row.firma" v-if="row.firma" alt="Firma" class="firma-imagen" /></td>
           </tr>
         </tbody>
       </table>
@@ -73,28 +69,33 @@ const useBitacora = useBitacoraStore();
 onBeforeMount(() => {
   traerBitacorasFiltradas();
   fillRemainingRows();
-  obtenerFechaActual();
 });
 
 function traerBitacorasFiltradas() {
-  rows.value = useBitacora.bitacorasFiltradas
-    .filter(bitacora => bitacora.estado === "Asistió")
-    .map(bitacora => ({
-      nombre: bitacora.id_aprendiz?.nombre || "",
-      cedula: bitacora.id_aprendiz?.documento || "",
-      planta: "",
-      contratista: "",
-      otro: "",
-      dependencia: "",
-      correo: bitacora.id_aprendiz?.email || "",
-      telefono: bitacora.id_aprendiz?.telefono || "",
-      autorizaGrabacion: "",
-      firma: bitacora.id_aprendiz?.firma || "",
-      hora: bitacora.hora || obtenerHoraActual(), // Nueva propiedad hora
-    }));
+  const bitacoras = useBitacora.bitacorasFiltradas.filter(bitacora => bitacora.estado === "Asistió");
+  
+  if (bitacoras.length > 0) {
+  const fechaPrimeraBitacora = ajustarFechaALocal(bitacoras[0].fecha); 
+  obtenerFechaDeBitacora(fechaPrimeraBitacora);
+}
+
+  rows.value = bitacoras.map(bitacora => ({
+    nombre: bitacora.id_aprendiz?.nombre || "",
+    cedula: bitacora.id_aprendiz?.documento || "",
+    planta: "",
+    contratista: "",
+    otro: "",
+    dependencia: "",
+    correo: bitacora.id_aprendiz?.email || "",
+    telefono: bitacora.id_aprendiz?.telefono || "",
+    autorizaGrabacion: "",
+    firma: bitacora.id_aprendiz?.firma || "",
+    fecha: bitacora.fecha || ""
+  }));
 
   fillRemainingRows();
 }
+
 
 function fillRemainingRows() {
   displayedRows.value = rows.value.length >= 27 ? rows.value : rows.value.concat(
@@ -108,24 +109,28 @@ function fillRemainingRows() {
       correo: '', 
       telefono: '',
       autorizaGrabacion: '', 
-      firma: '',
-      hora: '', // Añadir campo vacío para la hora
+      firma: ''
     })
   );
 }
 
-function obtenerFechaActual() {
-  const fecha = new Date();
-  day.value = fecha.getDate();
-  numberMonth.value = fecha.getMonth();
-  nameMonth.value = months[fecha.getMonth()];
-  year.value = fecha.getFullYear();
+function obtenerFechaDeBitacora(fecha) {
+  const fechaAjustada = ajustarFechaALocal(fecha); 
+  day.value = fechaAjustada.getDate();             
+  numberMonth.value = fechaAjustada.getMonth();    
+  nameMonth.value = months[fechaAjustada.getMonth()]; 
+  year.value = fechaAjustada.getFullYear();        
 }
 
-function obtenerHoraActual() {
-  const fecha = new Date();
-  return `${fecha.getHours().toString().padStart(2, '0')}:${fecha.getMinutes().toString().padStart(2, '0')}`;
+function ajustarFechaALocal(isoDate) {
+  const fechaUTC = new Date(isoDate); 
+  const diferenciaHoras = 5; 
+  fechaUTC.setHours(fechaUTC.getHours() + diferenciaHoras);
+
+  return fechaUTC;
 }
+
+
 </script>
 
 <style scoped>
@@ -171,6 +176,7 @@ function obtenerHoraActual() {
   padding: 0px !important;
 }
 
+/* Ajustes para tablets */
 @media screen and (max-width: 1024px) {
   .responsive-table th, .responsive-table td {
     font-size: 10px;
@@ -178,6 +184,7 @@ function obtenerHoraActual() {
   }
 }
 
+/* Ajustes para pantallas pequeñas (móviles) */
 @media screen and (max-width: 480px) {
   .responsive-table th, .responsive-table td {
     font-size: 9px;
@@ -185,6 +192,7 @@ function obtenerHoraActual() {
   }
 }
 
+/* Ajustes para impresión */
 @media print {
   @page {
     size: letter landscape;
@@ -206,16 +214,19 @@ function obtenerHoraActual() {
     padding: 4px;
   }
 
+  /* Asegurar que la tabla llene toda la hoja */
   html, body {
     width: 100%;
     height: 100%;
   }
   
+  /* Escalar el contenido para que encaje en la hoja */
   body {
     transform: scale(0.8);
     transform-origin: 0 0;
   }
   
+  /* Evitar saltos de página innecesarios */
   .responsive-table {
     page-break-inside: avoid;
   }

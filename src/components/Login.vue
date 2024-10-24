@@ -118,6 +118,7 @@ const onSubmit = async () => {
   loading.value = true;
   try {
     if (role.value === "Administrador") {
+      try {
       const res = await axios.post(
         "https://api-asistencia-sena.onrender.com/api/Usuarios/loginusuario",
         {
@@ -131,7 +132,16 @@ const onSubmit = async () => {
       sessionStorage.setItem("email", email.value);
       Notify.create({ type: "positive", message: "Inicio de sesión exitoso" });
       router.push("/Home");
-    } else if (role.value === "Aprendiz") {
+    } catch (error) {
+      console.log(error);
+      
+      Notify.create({
+        type: "negative",
+        message: error.response?.data?.msg || "Error en el inicio de sesión",
+      });
+    }}
+    
+    else if (role.value === "Aprendiz") {
       const aprendices = await useAprendiz.listarAprendiz();
       console.log(aprendices)
       const aprendiz = aprendices.data.find(aprendiz => aprendiz.documento === documento.value);
@@ -150,10 +160,8 @@ const onSubmit = async () => {
       }
     }
   } catch (error) {
-    Notify.create({
-      type: "negative",
-      message: error.response?.data?.msg || "Error en el inicio de sesión",
-    });
+  console.log(error);
+  
   } finally {
     loading.value = false;
   }
