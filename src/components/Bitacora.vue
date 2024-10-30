@@ -197,6 +197,8 @@ async function traer() {
     let response2 = await useAprendiz.listarAprendiz();
     let response3 = await useFicha.listarFichas();
 
+    console.log('Respuesta get bitacoras:  ',response)
+
     rows.value = response.data.bitacoras.map((bitacora) => {
       let aprendiz = response2.data.find(
         (aprendiz) => aprendiz?._id === bitacora?.id_aprendiz
