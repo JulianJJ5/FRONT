@@ -13,7 +13,7 @@
           :loading="isLoading"
           class="tabla q-table--flat q-table--bordered"
           pagination.sync="pagination"
-          :rows-per-page-options="[20, 50, 100, 0]"
+          :rows-per-page-options="[10, 20, 50, 100, 0]"
         >
           <template v-slot:body-cell-opciones="props">
             <q-td :props="props">
@@ -411,10 +411,6 @@ async function guardar() {
     prompt.value = false; // Cierra el diálogo al final
   } catch (error) {
     console.error(error); // Muestra el error en la consola
-    $q.notify({
-      type: "warning",
-      message: "Ocurrió un error.",
-    });
   } finally {
     isLoading.value = false; // Detiene la carga
   }

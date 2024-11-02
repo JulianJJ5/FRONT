@@ -72,7 +72,7 @@
         :columns="columns"
         row-key="name"
         pagination.sync="pagination"
-        :rows-per-page-options="[20, 50, 100, 0]"
+        :rows-per-page-options="[10, 20, 50, 100, 0]"
         :loading="loading"
       >
         <div>

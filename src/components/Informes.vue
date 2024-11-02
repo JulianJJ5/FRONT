@@ -23,6 +23,7 @@
           :rules="[val => !!val || 'Este campo es obligatorio']"
           emit-value
           map-options
+          :disable="loading"
           lazy-rules
         >
           <template v-slot:no-option>
@@ -41,6 +42,7 @@
             @click="buscarBitacoras"
             >Buscar
           </q-btn>
+          
           <q-btn 
           :disable="loading" 
           class="crearPDF colorCorporativo" 
@@ -188,15 +190,25 @@ const buscarBitacoras = async () => {
       });
       return;
     }
+        // Convertir la fecha a objeto Date y restar 5 horas
+        const fechaOriginal = new Date(fechaBuscada.value);
+    fechaOriginal.setHours(fechaOriginal.getHours());
+
+    const fechaAjustada = fechaOriginal.toISOString();
+console.log('fechaAjustada: ', fechaAjustada);
+
 
     // Obtener bitácoras por fecha
-    const responseByFecha = await useBitacora.listarPorFecha(fechaBuscada.value);
+    const responseByFecha = await useBitacora.listarPorFecha(fechaAjustada);
+console.log(responseByFecha);
+
+
     if (!responseByFecha.data || !responseByFecha.data.bitacoras.length) {
       $q.notify({
         type: "warning",
         message: "No se encontraron bitácoras para la fecha ingresada.",
       });
-      console.log('errorees:', responseByFecha);
+      console.log('errores:', responseByFecha);
       
       return;
     }

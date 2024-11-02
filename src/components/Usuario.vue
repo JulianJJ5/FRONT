@@ -183,6 +183,7 @@ const validar = async () => {
       type: "negative",
       message: "Rellena todos los campos.",
     });
+    isLoading.value = false;
     return;
   }
 

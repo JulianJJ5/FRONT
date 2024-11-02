@@ -269,8 +269,11 @@ const dialogo = (accion, ficha = null) => {
       ...loadingButtons.value[ficha._id],
       editar: false,
     };
+    
   }
   prompt.value = true;
+  console.log('ficha._id: ', ficha._id);
+
 };
 
 const columns = ref([

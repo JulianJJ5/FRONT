@@ -96,6 +96,7 @@
 
 <script setup>
 import { ref } from "vue";
+import moment from 'moment-timezone';
 import axios from "axios";
 import { useRouter } from "vue-router";
 import { Notify } from "quasar";
@@ -113,6 +114,7 @@ const router = useRouter();
 const loading = ref(false);
 const useBitacora = useBitacoraStore();
 const useAprendiz = useAprendizStore();
+let fechaLocal = moment().tz('America/Bogota').format('YYYY-MM-DD')
 
 const onSubmit = async () => {
   loading.value = true;
@@ -150,9 +152,13 @@ const onSubmit = async () => {
       if (aprendiz) {
         const bitacoraData = {
           id_aprendiz: aprendiz._id,
-          fecha: new Date().toISOString(),
+          // fecha: new Date().toISOString(),
+          fecha: new Date(fechaLocal),
+           // Esto dará "2024-11-01T13:33:33.000-05:00"
+          // fecha: moment().tz('America/Bogota').toDate(),
         };
-
+        console.log('bitacoraData: ', bitacoraData);
+        
         await useBitacora.crearBitacora(bitacoraData);
         Notify.create({ type: "positive", message: "Asistencia registrada con exito" });
       } else {
