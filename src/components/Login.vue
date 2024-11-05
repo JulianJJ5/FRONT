@@ -95,8 +95,8 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
-import moment from 'moment-timezone';
+import { ref } from "vue";/* 
+import moment from 'moment-timezone'; */
 import axios from "axios";
 import { useRouter } from "vue-router";
 import { Notify } from "quasar";
@@ -113,8 +113,8 @@ const roles = ref(["Administrador", "Aprendiz"])
 const router = useRouter();
 const loading = ref(false);
 const useBitacora = useBitacoraStore();
-const useAprendiz = useAprendizStore();
-let fechaLocal = moment().tz('America/Bogota').format('YYYY-MM-DD')
+const useAprendiz = useAprendizStore();/* 
+let fechaLocal = moment().tz('America/Bogota').format('YYYY-MM-DD') */
 
 const onSubmit = async () => {
   loading.value = true;

@@ -237,7 +237,7 @@ const columns = ref([
     name: 'codigoFicha',
     label: 'Código de Ficha',
     align: 'center',
-    field: 'codigoFicha',
+    field: 'id_ficha',
     sortable: true,
   },
   {
@@ -282,14 +282,21 @@ async function traer() {
   isLoading.value = true;
   try {
     const resultado = await useAprendiz.listarAprendiz();
+    const resultadoFichas = await useFicha.listarFichas();
+
     
-    // Aquí mapeamos los datos de aprendices y agregamos la ficha correspondiente
+    const fichasMap = resultadoFichas.data.reduce((map, ficha) => {
+      map[ficha._id] = ficha; // Usa _id o el campo adecuado según tu backend
+      return map;
+    }, {});
+
+
     rows.value = resultado.data.map(aprendiz => {
       const ficha = fichasOptions.value.find(ficha => ficha.idFicha === aprendiz.id_ficha);
       return {
         ...aprendiz,
-        nombreFicha: ficha ? ficha.nombreFicha : 'Sin ficha', // Si no tiene ficha, muestra 'Sin ficha'
-        codigoFicha: ficha ? ficha.codigoFicha : 'Sin código', // Si no tiene código, muestra 'Sin código'
+        nombreFicha: ficha ? ficha.nombreFicha : 'Sin ficha', 
+        codigoFicha: ficha ? ficha.codigoFicha : 'Sin código', 
       };
     });
   } catch (error) {
