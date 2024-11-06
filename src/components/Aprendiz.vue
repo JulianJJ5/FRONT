@@ -197,6 +197,7 @@ import { useQuasar } from "quasar";
 import { useAprendizStore } from "../stores/aprendiz.js";
 import { useFichaStore } from "../stores/Ficha.js";
 
+
 const isLoading = ref(false);
 const loadingButtons = ref({});
 const prompt = ref(false);
@@ -316,7 +317,7 @@ function abrirDialogo(row = null) {
     inputTelefonoAprendiz.value = row.telefono;
     inputEmailAprendiz.value = row.email;
     firma.value = row.firma;
-    selectedFicha.value = row.id_ficha || null;
+    selectedFicha.value = row.nombreFicha || null;
   } else {
     editando.value = false;
     aprendizId.value = null;
